@@ -1,0 +1,3 @@
+- path: /path/to/repo
+- path: /path/to/2/repo
+  branch: develop

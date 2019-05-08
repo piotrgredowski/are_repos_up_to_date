@@ -4,25 +4,25 @@ import os
 import subprocess
 import time
 
-from PIL import Image
-from pystray import Icon, Menu, MenuItem
-
 from gi import require_version
 require_version('Notify', '0.7')
 from gi.repository import Notify
 
+from PIL import Image
+from pystray import Icon, Menu, MenuItem
 
-# TODO: Load that from file, get 'master' by default
-paths_and_branches = [
-    ('/path/to/repo', 'branch name'),
-    ('/path/to/second/repo', 'branch name'),
-]
+from lib.cli import args
+from lib import utils
+
+
+repos = [utils.Repo(**repo) for repo in utils.read_file(args.file)]
+
+curr_dir = os.path.dirname(os.path.realpath(__file__))
 
 MESSAGE = "Repositories which are not up to date"
-DELAY = 10
-ICON_OK = Image.open('./images/ok.png')
-ICON_FAIL = Image.open('./images/fail.png')
-ICON_LOADING = Image.open('./images/loading.png')
+ICON_OK = Image.open(os.path.join(curr_dir, './images/ok.png'))
+ICON_FAIL = Image.open(os.path.join(curr_dir, './images/fail.png'))
+ICON_LOADING = Image.open(os.path.join(curr_dir, './images/loading.png'))
 
 
 def execute_command(command: str, cwd: str, with_stdout=False):
@@ -37,17 +37,16 @@ def execute_command(command: str, cwd: str, with_stdout=False):
         return output.decode('utf-8')
 
 
-def repo_is_up_to_date(path_branch):
-    path, branch = path_branch
+def repo_is_up_to_date(repo: utils.Repo):
     commands = {
         "fetch": "git fetch",
-        "origin": f"git rev-parse origin/{branch}",
-        "local": f"git rev-parse {branch}",
+        "origin": f"git rev-parse origin/{repo.branch}",
+        "local": f"git rev-parse {repo.branch}",
     }
 
-    fetch = execute_command(commands["fetch"], cwd=path)
-    origin_commit_id = execute_command(commands["origin"], cwd=path, with_stdout=True)
-    local_commit_id = execute_command(commands["local"], cwd=path, with_stdout=True)
+    execute_command(commands["fetch"], cwd=repo.path)
+    origin_commit_id = execute_command(commands["origin"], cwd=repo.path, with_stdout=True)
+    local_commit_id = execute_command(commands["local"], cwd=repo.path, with_stdout=True)
 
     return origin_commit_id == local_commit_id
 
@@ -70,16 +69,16 @@ def setup(icon: Icon):
 
     while True:
         output = []
-        for path_branch in paths_and_branches:
-            path, branch = path_branch
-            if not repo_is_up_to_date(path_branch):
-                output.append(f"{path} ({branch})")
+        for repo in repos:
+            if repo_is_up_to_date(repo):
+                continue
+            output.append(f"{repo.path} ({repo.branch})")
         was_up_to_date = is_up_to_date
         is_up_to_date = not bool(output)
 
         if is_up_to_date:
             _icon = ICON_OK
-            _items = [MenuItem('Everything is up to date', action=void)]
+            _items = [MenuItem('All repositories are up to date', action=void)]
         else:
             _icon = ICON_FAIL
             _items = [MenuItem(f'{MESSAGE}:', action=void)] + \
@@ -91,7 +90,7 @@ def setup(icon: Icon):
         icon.icon = _icon
         icon.menu = _menu
 
-        time.sleep(DELAY)
+        time.sleep(args.delay)
 
 
 menu = Menu(MenuItem(text='Checking repositories...',
