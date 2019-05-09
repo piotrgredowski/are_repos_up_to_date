@@ -23,30 +23,20 @@ ICON_FAIL = Image.open(os.path.join(curr_dir, './images/fail.png'))
 ICON_LOADING = Image.open(os.path.join(curr_dir, './images/loading.png'))
 
 
-def execute_command(command: str, cwd: str, with_stdout=False):
-    if with_stdout:
-        stdout = subprocess.PIPE
-    else:
-        stdout = None
-
-    output = subprocess.run(command.split(" "), cwd=cwd, stdout=stdout).stdout
-
-    if with_stdout:
-        return output.decode('utf-8')
+def execute_command(command: str, cwd: str):
+    return subprocess.run(command.split(" "), cwd=cwd)
 
 
 def repo_is_up_to_date(repo: utils.Repo):
     commands = {
         "fetch": "git fetch",
-        "origin": f"git rev-parse origin/{repo.branch}",
-        "local": f"git rev-parse {repo.branch}",
+        "is_up_to_date": f"git merge-base --is-ancestor origin/{repo.branch} {repo.branch}",
     }
 
     execute_command(commands["fetch"], cwd=repo.path)
-    origin_commit_id = execute_command(commands["origin"], cwd=repo.path, with_stdout=True)
-    local_commit_id = execute_command(commands["local"], cwd=repo.path, with_stdout=True)
+    returncode = execute_command(commands["is_up_to_date"], cwd=repo.path).returncode
 
-    return origin_commit_id == local_commit_id
+    return returncode == 0
 
 
 def send_notification(text):

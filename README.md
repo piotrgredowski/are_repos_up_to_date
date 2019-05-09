@@ -7,6 +7,7 @@ This script will check if current commits of specified local repos are the same 
 - `python>=3.6`
 - `python3-pip`
 - `sudo`
+- `git`
 
 ## Installation
 
