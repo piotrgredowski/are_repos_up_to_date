@@ -15,8 +15,6 @@ from lib.cli import args
 from lib import utils
 
 
-repos = [utils.Repo(**repo) for repo in utils.read_yaml_file(args.file)]
-
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 
 MESSAGE = "Repositories which are not up to date"
@@ -52,7 +50,7 @@ def repo_is_up_to_date(repo: utils.Repo):
 
 
 def send_notification(text):
-    n = Notify.Notification.new(MESSAGE, text)
+    n = Notify.Notification.new('', text)
     n.set_urgency(Notify.Urgency.CRITICAL)
     n.show()
 
@@ -69,22 +67,38 @@ def setup(icon: Icon):
 
     while True:
         output = []
+        wrong_output = []
+
+        # TODO: Please do it better...
+        repos, wrong_paths = utils.get_repos_and_wrong_paths(args.file)
+
         for repo in repos:
             if repo_is_up_to_date(repo):
                 continue
-            output.append(f"{repo.path} ({repo.branch})")
+            output.append(f'- {repo.path} ({repo.branch})')
+
         was_up_to_date = is_up_to_date
         is_up_to_date = not bool(output)
 
+        if wrong_paths:
+            wrong_output.extend(['', 'Those directories does not exist:'])
+            for path in wrong_paths:
+                wrong_output.append(f'-  {path}')
+
         if is_up_to_date:
             _icon = ICON_OK
-            _items = [MenuItem('All repositories are up to date', action=void)]
+            _items = [MenuItem('All existing repositories are up to date', action=void)]
         else:
             _icon = ICON_FAIL
             _items = [MenuItem(f'{MESSAGE}:', action=void)] + \
-                [MenuItem(f'\t{text}', action=void) for text in output]
+                [MenuItem(f'{text}', action=void) for text in output]
             if was_up_to_date:
-                send_notification("\n\n".join(output))
+                msg = "\n".join(output + wrong_output)
+                send_notification(msg)
+
+        if wrong_paths:
+            _items.extend([MenuItem(f'{text}', action=void) for text in wrong_output])
+
         _menu = Menu(*_items)
 
         icon.icon = _icon

@@ -20,6 +20,17 @@ class Repo:
             raise FileNotFoundError(path)
         return path
 
+def get_repos_and_wrong_paths(path):
+    repos = []
+    not_existing_paths = []
+    for repo in read_yaml_file(path):
+        try:
+            r = Repo(**repo)
+        except FileNotFoundError:
+            not_existing_paths.append(repo['path'])
+        else:
+            repos.append(r)
+    return repos, not_existing_paths
 
 def _get_environ_variable(name):
     return os.environ.get(name)
