@@ -1,3 +1,4 @@
 pystray==0.14.4
 Pillow==6.0.0
 PyYAML==5.1
+Jinja2==2.10.1

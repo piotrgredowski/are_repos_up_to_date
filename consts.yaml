@@ -1,0 +1,5 @@
+main_script_name: check_repos.py
+service_template_path: templates/check_repos.service.j2
+service_rendered_path: check_repos.service
+repos_list_filename: repos.yaml
+default_branch_name: master

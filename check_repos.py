@@ -15,7 +15,7 @@ from lib.cli import args
 from lib import utils
 
 
-repos = [utils.Repo(**repo) for repo in utils.read_file(args.file)]
+repos = [utils.Repo(**repo) for repo in utils.read_yaml_file(args.file)]
 
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 

@@ -1,16 +1,13 @@
 import os
 
 import yaml
+from jinja2 import Template
 
 
-def read_file(path):
+def read_yaml_file(path):
     with open(path, 'r') as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
     return data
-
-
-class FileNotExistsError(BaseException):
-    pass
 
 
 class Repo:
@@ -20,5 +17,32 @@ class Repo:
 
     def _validate_path(self, path):
         if not os.path.exists(path):
-            raise FileNotExistsError
+            raise FileNotFoundError(path)
         return path
+
+
+def _get_environ_variable(name):
+    return os.environ.get(name)
+
+
+def get_username():
+    return _get_environ_variable('USER')
+
+
+def get_display():
+    return _get_environ_variable('DISPLAY')
+
+
+def get_uid():
+    return os.getuid()
+
+
+def load_template(path: str):
+    with open(path) as f:
+        template = Template(f.read())
+    return template
+
+
+def save_to_file(data, path):
+    with open(path, 'w') as f:
+        f.write(data)

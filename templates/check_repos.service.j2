@@ -1,0 +1,16 @@
+[Unit]
+Description=Check if repos are up to date
+After=graphical.target dbus.socket
+Requires=dbus.socket
+
+[Service]
+ExecStart={{ path_to_script }} -f {{ path_to_repos_list_file }}
+User={{ username }}
+Environment=DISPLAY={{ display }}
+Environment=XDG_RUNTIME_DIR=/run/user/{{ user_uid }}
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{{ user_uid }}/bus
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
