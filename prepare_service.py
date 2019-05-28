@@ -1,4 +1,5 @@
 import os
+from sys import platform
 
 from lib import utils
 
@@ -8,9 +9,10 @@ CONSTS = utils.read_yaml_file(os.path.join(curr_dir, 'consts.yaml'))
 
 
 def main():
-    template = utils.load_template(CONSTS.get('service_template_path'))
+    template = utils.load_template(CONSTS.get('service_template_path').get(platform))
 
     path_to_script = os.path.join(curr_dir, CONSTS.get('main_script_name'))
+    path_to_script_dir = os.path.abspath(os.path.join(path_to_script, '..'))
     path_to_repos_list_file = os.path.join(curr_dir, CONSTS.get('repos_list_filename'))
     username = utils.get_username()
     display = utils.get_display()
@@ -18,13 +20,14 @@ def main():
 
     rendered = template.render(
         path_to_script=path_to_script,
+        path_to_script_dir=path_to_script_dir,
         path_to_repos_list_file=path_to_repos_list_file,
         username=username,
         display=display,
         user_uid=user_uid
     )
 
-    utils.save_to_file(rendered, CONSTS.get('service_rendered_path'))
+    utils.save_to_file(rendered, CONSTS.get('service_rendered_path').get(platform))
 
 
 if __name__ == "__main__":

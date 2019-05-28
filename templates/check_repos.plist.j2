@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+
+    <key>Label</key>
+    <string>check_repos.plist</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>WorkingDirectory</key>
+    <string>{{ path_to_script_dir }}</string>
+
+    <key>StandardErrorPath</key>
+    <string>{{ path_to_script_dir }}/logs/stderr.log</string>
+
+    <key>StandardOutPath</key>
+    <string>{{ path_to_script_dir }}/logs/stdout.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PATH</key>
+      <string><![CDATA[/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin]]></string>
+    </dict>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>{{ path_to_script }}</string>
+      <string>-f</string>
+      <string>{{ path_to_repos_list_file }}</string>
+    </array>
+
+  </dict>
+</plist>

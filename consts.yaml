@@ -1,5 +1,9 @@
 main_script_name: check_repos.py
-service_template_path: templates/check_repos.service.j2
-service_rendered_path: check_repos.service
+service_template_path:
+  linux: templates/check_repos.service.j2
+  darwin: templates/check_repos.plist.j2
+service_rendered_path:
+  linux: check_repos.service
+  darwin: check_repos.plist
 repos_list_filename: repos.yaml
 default_branch_name: master

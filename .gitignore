@@ -1,4 +1,6 @@
 .vscode/
 ENV/
 __pycache__/
-check_repos.service
+*.service
+*.plist
+logs/
