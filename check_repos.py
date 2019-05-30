@@ -5,7 +5,7 @@ import subprocess
 import time
 
 
-from PIL import Image
+from PIL import Image, ImageOps
 from pystray import Icon, Menu, MenuItem
 
 from lib.cli import args
@@ -29,9 +29,16 @@ else:
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 
 MESSAGE = "Repositories which are not up to date"
-ICON_OK = Image.open(os.path.join(curr_dir, './images/ok.png'))
-ICON_FAIL = Image.open(os.path.join(curr_dir, './images/fail.png'))
-ICON_LOADING = Image.open(os.path.join(curr_dir, './images/loading.png'))
+
+def _prepare_image(full_img_path):
+    return ImageOps.expand(Image.open(full_img_path), border=5, fill=0)
+
+def get_image(rel_img_path):
+    return _prepare_image(os.path.join(curr_dir, rel_img_path))
+
+icon_ok = get_image('images/ok.png')
+icon_fail = get_image('images/fail.png')
+icon_loading = get_image('images/loading.png')
 
 
 def execute_command(command: str, cwd: str):
@@ -79,10 +86,10 @@ def setup(icon: Icon):
                 wrong_output.append(f'-  {path}')
 
         if is_up_to_date:
-            _icon = ICON_OK
+            _icon = icon_ok
             _items = [MenuItem('All existing repositories are up to date', action=void)]
         else:
-            _icon = ICON_FAIL
+            _icon = icon_fail
             _items = [MenuItem(f'{MESSAGE}:', action=void)] + \
                 [MenuItem(f'{text}', action=void) for text in output]
             if was_up_to_date:
@@ -103,6 +110,6 @@ def setup(icon: Icon):
 menu = Menu(MenuItem(text='Checking repositories...',
                      action=void))
 
-icon = Icon(name=MESSAGE, icon=ICON_LOADING, menu=menu)
+icon = Icon(name=MESSAGE, icon=icon_loading, menu=menu)
 
 icon.run(setup)
