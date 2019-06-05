@@ -14,6 +14,7 @@ class Repo:
     def __init__(self, path, branch='master'):
         self.path = self._validate_path(path)
         self.branch = branch
+        self.can_ff = False
 
     def _validate_path(self, path):
         if not os.path.exists(path):

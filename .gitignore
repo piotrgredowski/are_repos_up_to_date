@@ -7,3 +7,5 @@ __pycache__/
 *.service
 *.plist
 logs/
+
+repos.yaml

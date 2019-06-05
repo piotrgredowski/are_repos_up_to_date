@@ -57,8 +57,28 @@ def repo_is_up_to_date(repo: utils.Repo):
     return returncode == 0
 
 
+def can_do_fast_forward(repo: utils.Repo):
+    returncode = execute_command(f"git merge-base --is-ancestor {repo.branch} origin/{repo.branch}", cwd=repo.path).returncode
+    return returncode == 0
+
+
+def pull_changes(repo: utils.Repo):
+    execute_command(f"git pull", cwd=repo.path)
+
+
+def pull_changes_for_list_of_repos(repos: list):
+    for repo in repos:
+        if repo.can_ff:
+            pull_changes(repo)
+
+
 def void():
     pass
+
+
+def send_notification(rows: list):
+    msg = "\n".join(rows)
+    notify(MESSAGE, msg)
 
 
 def setup(icon: Icon):
@@ -72,18 +92,22 @@ def setup(icon: Icon):
         # TODO: Please do it better...
         repos, wrong_paths = utils.get_repos_and_wrong_paths(args.file)
 
-        for repo in repos:
-            if repo_is_up_to_date(repo):
-                continue
-            output.append(f'- {repo.path} ({repo.branch})')
-
-        was_up_to_date = is_up_to_date
-        is_up_to_date = not bool(output)
-
         if wrong_paths:
             wrong_output.extend(['', 'Those directories does not exist:'])
             for path in wrong_paths:
                 wrong_output.append(f'-  {path}')
+
+        for repo in repos:
+            if repo_is_up_to_date(repo):
+                continue
+            text = f'- {repo.path} ({repo.branch})'
+            repo.can_ff  = can_do_fast_forward(repo)
+            if repo.can_ff:
+                text += ' [FF]'
+            output.append(text)
+
+        was_up_to_date = is_up_to_date
+        is_up_to_date = not bool(output)
 
         if is_up_to_date:
             _icon = icon_ok
@@ -92,9 +116,15 @@ def setup(icon: Icon):
             _icon = icon_fail
             _items = [MenuItem(f'{MESSAGE}:', action=void)] + \
                 [MenuItem(f'{text}', action=void) for text in output]
+
+            if any(repo.can_ff for repo in repos):
+                _items.extend([
+                    MenuItem('', action=void),
+                    MenuItem(text='Pull changes for fast forwardable repositories marked with [FF]',
+                             action=pull_changes_for_list_of_repos(repos))])
+
             if was_up_to_date:
-                msg = "\n".join(output + wrong_output)
-                notify(MESSAGE, msg)
+                send_notification(output + wrong_output)
 
         if wrong_paths:
             _items.extend([MenuItem(f'{text}', action=void) for text in wrong_output])
