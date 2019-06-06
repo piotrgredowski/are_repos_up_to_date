@@ -2,9 +2,14 @@
 
 set -e
 
-pip3 install -r requirements.txt
-
 python3 prepare_service.py
+
+if [ ! -d "ENV" ]; then
+    python3 -m venv ENV
+fi
+. ENV/bin/activate
+
+pip3 install -r requirements.txt
 
 if [ "$(uname)" == "Darwin" ]; then
     launchctl unload check_repos.plist

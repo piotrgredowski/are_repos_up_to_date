@@ -9,6 +9,7 @@ User={{ username }}
 Environment=DISPLAY={{ display }}
 Environment=XDG_RUNTIME_DIR=/run/user/{{ user_uid }}
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{{ user_uid }}/bus
+Environment=PYTHONPATH={{ venv_python_path }}:{{ global_site_packages_path }}
 Restart=on-failure
 RestartSec=3
 

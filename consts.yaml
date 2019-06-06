@@ -7,3 +7,4 @@ service_rendered_path:
   darwin: check_repos.plist
 repos_list_filename: repos.yaml
 default_branch_name: master
+venv_python_path: ENV/bin/python3
