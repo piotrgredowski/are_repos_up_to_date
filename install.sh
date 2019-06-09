@@ -12,10 +12,10 @@ fi
 pip3 install -r requirements.txt
 
 if [ "$(uname)" == "Darwin" ]; then
-    launchctl unload check_repos.plist
-    launchctl load check_repos.plist
+    launchctl unload tmp/check_repos.plist
+    launchctl load tmp/check_repos.plist
 else
-    sudo cp check_repos.service /etc/systemd/system
+    sudo cp tmp/check_repos.service /etc/systemd/system
 
     sudo systemctl stop check_repos.service
     sudo systemctl disable check_repos.service

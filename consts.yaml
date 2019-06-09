@@ -3,8 +3,8 @@ service_template_path:
   linux: templates/check_repos.service.j2
   darwin: templates/check_repos.plist.j2
 service_rendered_path:
-  linux: check_repos.service
-  darwin: check_repos.plist
+  linux: tmp/check_repos.service
+  darwin: tmp/check_repos.plist
 repos_list_filename: repos.yaml
 default_branch_name: master
 venv_python_path: ENV/bin/python3

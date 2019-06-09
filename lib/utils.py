@@ -33,30 +33,3 @@ def get_repos_and_wrong_paths(path):
         else:
             repos.append(r)
     return repos, not_existing_paths
-
-
-def _get_environ_variable(name):
-    return os.environ.get(name)
-
-
-def get_username():
-    return _get_environ_variable("USER")
-
-
-def get_display():
-    return _get_environ_variable("DISPLAY")
-
-
-def get_uid():
-    return os.getuid()
-
-
-def load_template(path: str):
-    with open(path) as f:
-        template = Template(f.read())
-    return template
-
-
-def save_to_file(data, path):
-    with open(path, "w") as f:
-        f.write(data)

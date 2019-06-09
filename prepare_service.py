@@ -1,41 +1,30 @@
-import os
-import sys
-import distutils.sysconfig
+#!/usr/bin/env python3
 
-from lib import utils
+import os
+
+from lib import ServiceMaker
+from lib import SystemInfo
 
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 
-CONSTS = utils.read_yaml_file(os.path.join(curr_dir, "consts.yaml"))
 
-
-def main():
-    template = utils.load_template(
-        CONSTS.get("service_template_path").get(sys.platform)
+def make_service():
+    service_maker = ServiceMaker(root_dir=curr_dir)
+    service_maker.load_template()
+    info = SystemInfo(root_dir=curr_dir)
+    service_maker.render_template(
+        path_to_script=info.path_to_main_script,
+        path_to_script_dir=info.path_to_script_dir,
+        path_to_repos_list_file=info.path_to_repos_list_file,
+        username=info.username,
+        display=info.display,
+        user_uid=info.user_uid,
+        global_site_packages_path=info.global_site_packages_path,
+        venv_python_path=info.venv_python_path,
     )
 
-    path_to_script = os.path.join(curr_dir, CONSTS.get("main_script_name"))
-    path_to_script_dir = os.path.abspath(os.path.join(path_to_script, ".."))
-    path_to_repos_list_file = os.path.join(curr_dir, CONSTS.get("repos_list_filename"))
-    username = utils.get_username()
-    display = utils.get_display()
-    user_uid = utils.get_uid()
-    global_site_packages_path = distutils.sysconfig.get_python_lib()
-    venv_python_path = os.path.join(curr_dir, CONSTS.get("venv_python_path"))
-
-    rendered = template.render(
-        path_to_script=path_to_script,
-        path_to_script_dir=path_to_script_dir,
-        path_to_repos_list_file=path_to_repos_list_file,
-        username=username,
-        display=display,
-        user_uid=user_uid,
-        global_site_packages_path=global_site_packages_path,
-        venv_python_path=venv_python_path,
-    )
-
-    utils.save_to_file(rendered, CONSTS.get("service_rendered_path").get(sys.platform))
+    service_maker.save_template()
 
 
 if __name__ == "__main__":
-    main()
+    make_service()
