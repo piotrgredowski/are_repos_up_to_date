@@ -7,34 +7,9 @@ import time
 
 from PIL import Image, ImageOps
 from pystray import Icon, Menu, MenuItem
-
 from lib.cli import args
-from lib import utils
 
-from sys import platform
-
-if platform == "darwin":
-
-    def notify(title: str, text: str):
-        os.system(
-            """osascript -e 'display notification "{}" with title "{}"'""".format(
-                text, title
-            )
-        )
-
-
-else:
-    from gi import require_version
-
-    require_version("Notify", "0.7")
-    from gi.repository import Notify
-
-    def notify(title: str, text: str):
-        Notify.init(title)
-        n = Notify.Notification.new("", text)
-        n.set_urgency(Notify.Urgency.CRITICAL)
-        n.show()
-
+from lib import utils, Notifier
 
 curr_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -92,11 +67,6 @@ def void():
     pass
 
 
-def send_notification(rows: list):
-    msg = "\n".join(rows)
-    notify(MESSAGE, msg)
-
-
 def setup(icon: Icon):
     icon.visible = True
     is_up_to_date = True
@@ -144,9 +114,10 @@ def setup(icon: Icon):
                         ),
                     ]
                 )
-
             if was_up_to_date:
-                send_notification(output + wrong_output)
+                n = Notifier()
+
+                n.send_notification(output + wrong_output)
 
         if wrong_paths:
             _items.extend([MenuItem(f"{text}", action=void) for text in wrong_output])
