@@ -5,13 +5,13 @@ from jinja2 import Template
 
 
 def read_yaml_file(path):
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
     return data
 
 
 class Repo:
-    def __init__(self, path, branch='master'):
+    def __init__(self, path, branch="master"):
         self.path = self._validate_path(path)
         self.branch = branch
         self.can_ff = False
@@ -21,6 +21,7 @@ class Repo:
             raise FileNotFoundError(path)
         return path
 
+
 def get_repos_and_wrong_paths(path):
     repos = []
     not_existing_paths = []
@@ -28,21 +29,22 @@ def get_repos_and_wrong_paths(path):
         try:
             r = Repo(**repo)
         except FileNotFoundError:
-            not_existing_paths.append(repo['path'])
+            not_existing_paths.append(repo["path"])
         else:
             repos.append(r)
     return repos, not_existing_paths
+
 
 def _get_environ_variable(name):
     return os.environ.get(name)
 
 
 def get_username():
-    return _get_environ_variable('USER')
+    return _get_environ_variable("USER")
 
 
 def get_display():
-    return _get_environ_variable('DISPLAY')
+    return _get_environ_variable("DISPLAY")
 
 
 def get_uid():
@@ -56,5 +58,5 @@ def load_template(path: str):
 
 
 def save_to_file(data, path):
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         f.write(data)
