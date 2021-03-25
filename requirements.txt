@@ -1,4 +1,4 @@
 Jinja2==2.10.1
 Pillow==6.2.2
 pystray==0.14.4
-PyYAML==5.1
+PyYAML==5.4
